@@ -6,6 +6,7 @@
 
 ## 🚀 Key Features
 
+* **Massive Built-in Wordlist:** Includes a pre-packed `endpoints.txt` file featuring over 30,000 curated paths and sensitive endpoints ready for high-efficiency scanning.
 * **Multi-Threaded Concurrency:** Leverages `ThreadPoolExecutor` for fast parallel execution while maintaining safe rate-limiting intervals to avoid triggering defensive rate-limiters.
 * **Smart HTTP Fallback:** Automatically switches from fast `HEAD` probes to verification `GET` requests when encountering `403 Forbidden` or `405 Method Not Allowed` status codes.
 * **Source Code Obfuscation:** Keeps sensitive target paths encoded in Base64 arrays to secure the script template and prevent easy static signature detection.
