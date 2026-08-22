@@ -1,4 +1,4 @@
-# Path Hunter 
+# Path Hunter
 import os
 import requests
 import sys
@@ -36,7 +36,8 @@ def load_paths(filename="endpoints.txt"):
 
 
 def test_single_path(base_origin, path):
-    full_url = urljoin(base_origin, path)
+    cleaned_path = path.lstrip('/')
+    full_url = urljoin(base_origin, cleaned_path)
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
     try:
         response = requests.head(full_url, headers=headers, timeout=3, allow_redirects=True)
@@ -52,8 +53,12 @@ def test_single_path(base_origin, path):
 
 
 def run_scanner(target_url, sensitive_paths):
+    if not target_url.endswith("/"):
+        target_url += "/"
+        print(f"\033[1;33m[!]\033[0m Target URL normalized (added trailing /): \033[1;35m{target_url}\033[0m")
+
     parsed_base = urlparse(target_url)
-    base_origin = f"{parsed_base.scheme}://{parsed_base.netloc}"
+    base_origin = f"{parsed_base.scheme}://{parsed_base.netloc}{parsed_base.path}"
 
     total_tests = len(sensitive_paths)
     valid_results = []
