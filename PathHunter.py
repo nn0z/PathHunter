@@ -52,7 +52,7 @@ def test_single_path(base_origin, path):
         return (full_url, path, "ERR")
 
 
-def run_scanner(target_url, sensitive_paths):
+def run_scanner(target_url, sensitive_paths, max_workers):
     if not target_url.endswith("/"):
         target_url += "/"
         print(f"\033[1;33m[!]\033[0m Target URL normalized (added trailing /): \033[1;35m{target_url}\033[0m")
@@ -76,9 +76,10 @@ def run_scanner(target_url, sensitive_paths):
         "Other": 0
     }
 
-    print(f"\n\033[1;33m[*]\033[0m Starting live scan... Target: \033[1;35m{base_origin}\033[0m | Total paths: \033[1;35m{total_tests}\033[0m\n" + "\033[1;30m" + "=" * 70 + "\033[0m")
+    print(
+        f"\n\033[1;33m[*]\033[0m Starting live scan... Target: \033[1;35m{base_origin}\033[0m | Threads: \033[1;35m{max_workers}\033[0m | Total paths: \033[1;35m{total_tests}\033[0m\n" + "\033[1;30m" + "=" * 70 + "\033[0m")
 
-    with ThreadPoolExecutor(max_workers=20) as executor:
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
         futures = {executor.submit(test_single_path, base_origin, path): path for path in sensitive_paths}
 
         for future in as_completed(futures):
@@ -101,7 +102,8 @@ def run_scanner(target_url, sensitive_paths):
                 else:
                     status_str = f"\033[94m[{status_code}]\033[0m"
 
-                sys.stdout.write(f"\r\033[K\033[1;31m[+] FOUND:\033[0m {status_str} \033[1;32m{path}\033[0m -> {full_url}\n")
+                sys.stdout.write(
+                    f"\r\033[K\033[1;31m[+] FOUND:\033[0m {status_str} \033[1;32m{path}\033[0m -> {full_url}\n")
                 sys.stdout.flush()
 
             if completed_count % 20 == 0 or completed_count == total_tests:
@@ -171,4 +173,12 @@ if __name__ == "__main__":
         print("\033[1;31m[-]\033[0m URL cannot be empty.")
         sys.exit()
 
-    run_scanner(target_input, sensitive_paths)
+    threads_input = input("\033[1;36m[?] Enter number of threads (Recommended: 5-10): \033[0m").strip()
+
+    if threads_input.isdigit():
+        max_workers = int(threads_input)
+    else:
+        max_workers = 10
+        print("\033[1;33m[!]\033[0m Invalid input. Defaulting to recommended value: \033[1;35m10\033[0m")
+
+    run_scanner(target_input, sensitive_paths, max_workers)
